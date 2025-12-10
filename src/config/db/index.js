@@ -8,7 +8,7 @@ const config = {
   database: process.env.DB_DATABASE,
   port: parseInt(process.env.DB_PORT),
   options: {
-    encrypt: false, // Nếu dùng Azure thì đặt true
+    encrypt: false,
     trustServerCertificate: true,
   },
   pool: {
@@ -18,14 +18,31 @@ const config = {
   },
 };
 
-async function connect() {
+// Tạo pool toàn cục
+const pool = new sql.ConnectionPool(config);
+const poolConnect = pool.connect(); // Promise kết nối pool
+
+pool.on("error", (err) => {
+  console.error("Unexpected SQL error", err);
+});
+
+async function executeStoredProcedure(procName, inputParams = {}) {
+  await poolConnect; // đảm bảo pool đã connect
   try {
-    await sql.connect(config);
-    console.log("✅ Connected to SQL Server database");
-  } catch (error) {
-    console.error("❌ Database connection failed:", error);
-    process.exit(1);
+    const request = pool.request();
+
+    // Thêm các input parameters nếu có
+    for (const key in inputParams) {
+      const { type, value } = inputParams[key];
+      request.input(key, type, value);
+    }
+
+    const result = await request.execute(procName);
+    return result.recordset;
+  } catch (err) {
+    console.error("Stored Procedure Error:", err);
+    throw err;
   }
 }
 
-module.exports = { sql, connect };
+module.exports = { sql, executeStoredProcedure };
