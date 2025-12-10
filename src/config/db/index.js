@@ -20,23 +20,26 @@ const config = {
 
 // Tạo pool toàn cục
 const pool = new sql.ConnectionPool(config);
-const poolConnect = pool.connect(); // Promise kết nối pool
+const poolConnect = pool.connect();
 
 pool.on("error", (err) => {
   console.error("Unexpected SQL error", err);
 });
 
+async function connect() {
+  await poolConnect;
+  console.log("✅ Connected to SQL Server database (pool)");
+}
+
+// Hàm gọi stored procedure an toàn
 async function executeStoredProcedure(procName, inputParams = {}) {
-  await poolConnect; // đảm bảo pool đã connect
+  await poolConnect;
   try {
     const request = pool.request();
-
-    // Thêm các input parameters nếu có
     for (const key in inputParams) {
       const { type, value } = inputParams[key];
       request.input(key, type, value);
     }
-
     const result = await request.execute(procName);
     return result.recordset;
   } catch (err) {
@@ -45,4 +48,4 @@ async function executeStoredProcedure(procName, inputParams = {}) {
   }
 }
 
-module.exports = { sql, executeStoredProcedure };
+module.exports = { sql, connect, executeStoredProcedure };
