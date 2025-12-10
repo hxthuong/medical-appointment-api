@@ -1,6 +1,6 @@
 const ChatMessengers = require("../models/ChatMessengers");
 require("dotenv").config();
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.BASE_URL || "http://localhost:3006";
 const Files = require("../models/Files");
 
 class ChatMessengersController {

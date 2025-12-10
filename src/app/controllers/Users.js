@@ -1,6 +1,6 @@
 const Users = require("../models/Users");
 require("dotenv").config();
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.BASE_URL || "http://localhost:3006";
 
 class UsersController {
   //GET /

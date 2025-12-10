@@ -1,6 +1,6 @@
 const Files = require("../models/Files");
 require("dotenv").config();
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.BASE_URL || "http://localhost:3006";
 
 class FilesController {
   //GET /
